@@ -31,17 +31,22 @@ import {Router, Request, Response} from 'express'
   /**************************************************************************** */
 
   app.get('/filteredimage', async (req: Request, res: Response) => {
-    const image_url = req.query.image_url.toString();
+    try {
+      
+    let image_url = req.query.image_url.toString();
     if (!image_url) {
       res.status(400).send('Image url is required');
     }
-
-    const filtered_image = await filterImageFromURL(image_url);
-
-    res.status(200).sendFile(filtered_image, () => { 
-      deleteLocalFiles([filtered_image]);
-    });
-  })
+    let filtered_image = await filterImageFromURL(image_url.toString());
+    console.log(filtered_image);
+    res.status(200).sendFile(filtered_image);
+    res.on("finish", () => deleteLocalFiles([filtered_image]))
+    }catch(error){
+      console.error("Unexpected error while filtering image"+error);
+      return res.status(500).send("Unexpected error")
+    }
+  });
+  
   //! END @TODO1
   
   // Root Endpoint
